@@ -1,19 +1,5 @@
 // frontend/src/App.jsx
-// Plant Disease Recognition — React + Tailwind frontend
-// Giao tiếp với FastAPI backend tại VITE_API_URL
-
 import { useState, useRef, useCallback } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-function diseaseColor(disease) {
-  if (/healthy/i.test(disease)) return "bg-green-100 text-green-800 border-green-300";
-  if (/blight/i.test(disease))  return "bg-red-100 text-red-800 border-red-300";
-  if (/rust/i.test(disease))    return "bg-orange-100 text-orange-800 border-orange-300";
-  if (/spot/i.test(disease))    return "bg-yellow-100 text-yellow-800 border-yellow-300";
-  if (/mold|mildew/i.test(disease)) return "bg-purple-100 text-purple-800 border-purple-300";
-  return "bg-blue-100 text-blue-800 border-blue-300";
-}
 
 function ConfidenceBar({ value, label, rank }) {
   const pct = Math.round(value * 100);
@@ -185,11 +171,9 @@ export default function App() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await fetch(`${API_URL}/predict`, {
+      // Gọi Vercel proxy thay vì backend trực tiếp
+      const res = await fetch("/api/predict", {
         method: "POST",
-        headers: {
-          "ngrok-skip-browser-warning": "1",
-        },
         body: form,
       });
 
@@ -292,11 +276,3 @@ export default function App() {
                 <div className="text-2xl mb-1">{card.icon}</div>
                 <div className="text-xs font-bold text-gray-800">{card.title}</div>
                 <div className="text-xs text-gray-500">{card.desc}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
