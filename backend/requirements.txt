@@ -1,0 +1,30 @@
+# backend/requirements.txt
+# Python 3.10+  |  CUDA 12.1+
+
+# Core serving
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+
+# Deep learning
+torch>=2.3.0
+torchvision>=0.18.0
+
+# Models
+transformers>=4.57.0          # Qwen3-VL support
+accelerate>=0.34.0
+bitsandbytes>=0.43.0          # 4-bit quantization
+sentence-transformers>=3.0.0
+
+# FAISS (choose one):
+# faiss-gpu                   # nếu có CUDA
+# faiss-cpu                   # fallback CPU
+
+# Image / data
+Pillow>=10.0.0
+pandas>=2.0.0
+numpy>=1.26.0
+
+# Dataset download (chỉ cần khi build index)
+datasets>=2.20.0
+huggingface_hub>=0.24.0
