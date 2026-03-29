@@ -6,9 +6,6 @@ import { useState, useRef, useCallback } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-// ─────────────────────────────────────────────
-// Utility: disease label → màu badge
-// ─────────────────────────────────────────────
 function diseaseColor(disease) {
   if (/healthy/i.test(disease)) return "bg-green-100 text-green-800 border-green-300";
   if (/blight/i.test(disease))  return "bg-red-100 text-red-800 border-red-300";
@@ -18,9 +15,6 @@ function diseaseColor(disease) {
   return "bg-blue-100 text-blue-800 border-blue-300";
 }
 
-// ─────────────────────────────────────────────
-// Confidence bar component
-// ─────────────────────────────────────────────
 function ConfidenceBar({ value, label, rank }) {
   const pct = Math.round(value * 100);
   const barColors = [
@@ -28,7 +22,6 @@ function ConfidenceBar({ value, label, rank }) {
     "bg-amber-400", "bg-rose-400"
   ];
   const color = barColors[rank] || "bg-gray-400";
-
   return (
     <div className="mb-2">
       <div className="flex justify-between items-center mb-0.5">
@@ -47,9 +40,6 @@ function ConfidenceBar({ value, label, rank }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Reasoning trace panel
-// ─────────────────────────────────────────────
 function ReasoningTrace({ text }) {
   const [open, setOpen] = useState(false);
   return (
@@ -72,9 +62,6 @@ function ReasoningTrace({ text }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Upload zone
-// ─────────────────────────────────────────────
 function UploadZone({ onFile, preview }) {
   const inputRef = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -110,11 +97,7 @@ function UploadZone({ onFile, preview }) {
         }}
       />
       {preview ? (
-        <img
-          src={preview}
-          alt="Preview"
-          className="max-h-60 max-w-full rounded-xl object-contain shadow"
-        />
+        <img src={preview} alt="Preview" className="max-h-60 max-w-full rounded-xl object-contain shadow" />
       ) : (
         <>
           <span className="text-4xl mb-2">🌿</span>
@@ -128,30 +111,19 @@ function UploadZone({ onFile, preview }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Result card
-// ─────────────────────────────────────────────
 function ResultCard({ result }) {
   const { disease, confidence, reasoning_trace, top_candidates, latency_ms } = result;
   const pct = Math.round(confidence * 100);
   const isHealthy = /healthy/i.test(disease);
-
-  // Tính confidence cho mỗi candidate từ score
   const totalScore = top_candidates.reduce((s, c) => s + c.score, 0) || 1;
-  const candidatesWithConf = top_candidates.map(c => ({
-    ...c,
-    conf: c.score / totalScore,
-  }));
+  const candidatesWithConf = top_candidates.map(c => ({ ...c, conf: c.score / totalScore }));
 
   return (
     <div className="mt-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-      {/* Header */}
       <div className={`px-6 py-5 ${isHealthy ? "bg-green-600" : "bg-red-600"}`}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-white/80 text-xs font-medium uppercase tracking-wider mb-1">
-              Kết quả chẩn đoán
-            </p>
+            <p className="text-white/80 text-xs font-medium uppercase tracking-wider mb-1">Kết quả chẩn đoán</p>
             <h2 className="text-white text-xl font-bold leading-tight">{disease}</h2>
           </div>
           <div className="text-right">
@@ -160,54 +132,29 @@ function ResultCard({ result }) {
           </div>
         </div>
         <div className="mt-3 w-full bg-white/20 rounded-full h-1.5">
-          <div
-            className="bg-white rounded-full h-1.5 transition-all duration-1000"
-            style={{ width: `${pct}%` }}
-          />
+          <div className="bg-white rounded-full h-1.5 transition-all duration-1000" style={{ width: `${pct}%` }} />
         </div>
       </div>
-
-      {/* Body */}
       <div className="px-6 py-5">
-        {/* Top candidates */}
-        <div className="mb-1">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-            Top 5 Candidates
-          </h3>
-          {candidatesWithConf.map((c, i) => (
-            <ConfidenceBar
-              key={c.disease}
-              label={c.disease}
-              value={c.conf}
-              rank={i}
-            />
-          ))}
-        </div>
-
-        {/* Reasoning trace */}
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Top 5 Candidates</h3>
+        {candidatesWithConf.map((c, i) => (
+          <ConfidenceBar key={c.disease} label={c.disease} value={c.conf} rank={i} />
+        ))}
         <ReasoningTrace text={reasoning_trace} />
-
-        {/* Latency */}
-        <p className="text-right text-xs text-gray-400 mt-3">
-          ⏱ {latency_ms.toLocaleString()} ms
-        </p>
+        <p className="text-right text-xs text-gray-400 mt-3">⏱ {latency_ms.toLocaleString()} ms</p>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-// Main App
-// ─────────────────────────────────────────────
 export default function App() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [stage, setStage] = useState("");  // loading stage label
+  const [stage, setStage] = useState("");
 
-  // Nhận file → tạo preview URL
   const handleFile = (f) => {
     setFile(f);
     setPreview(URL.createObjectURL(f));
@@ -215,7 +162,6 @@ export default function App() {
     setError(null);
   };
 
-  // Gửi request lên backend
   const handleAnalyze = async () => {
     if (!file) return;
     setLoading(true);
@@ -241,6 +187,9 @@ export default function App() {
 
       const res = await fetch(`${API_URL}/predict`, {
         method: "POST",
+        headers: {
+          "ngrok-skip-browser-warning": "1",
+        },
         body: form,
       });
 
@@ -269,25 +218,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur border-b border-green-100 sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
           <span className="text-2xl">🌱</span>
           <div>
-            <h1 className="text-lg font-bold text-gray-900 leading-none">
-              Plant Disease AI
-            </h1>
+            <h1 className="text-lg font-bold text-gray-900 leading-none">Plant Disease AI</h1>
             <p className="text-xs text-gray-500">CLIP + Qwen3-VL + FAISS</p>
           </div>
         </div>
       </header>
 
-      {/* Main content */}
       <main className="max-w-lg mx-auto px-4 py-6">
-        {/* Upload */}
         <UploadZone onFile={handleFile} preview={preview} />
 
-        {/* Actions */}
         <div className="flex gap-3 mt-4">
           <button
             onClick={handleAnalyze}
@@ -317,17 +260,12 @@ export default function App() {
           )}
         </div>
 
-        {/* Loading stage */}
         {loading && stage && (
           <div className="mt-4 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
             <div className="flex items-center gap-3">
               <div className="flex gap-1">
                 {[0,1,2].map(i => (
-                  <span
-                    key={i}
-                    className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
+                  <span key={i} className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                 ))}
               </div>
               <p className="text-sm text-indigo-700 font-medium">{stage}</p>
@@ -335,17 +273,14 @@ export default function App() {
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
             <p className="text-sm text-red-700">❌ {error}</p>
           </div>
         )}
 
-        {/* Result */}
         {result && <ResultCard result={result} />}
 
-        {/* Info cards */}
         {!result && !loading && (
           <div className="mt-8 grid grid-cols-3 gap-3">
             {[
